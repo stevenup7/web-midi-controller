@@ -1,31 +1,24 @@
 import MidiMessage from "./MidiMessage";
 import MidiPort, { MidiPortDirection } from "./MidiPort";
 import { CheckboxItemData } from "../components/CheckboxGroup";
+import MidiClock from "./MidiClock";
 
 class MidiManager {
-  midi: any; // TODO: change any to the proper midi type
+  midi: MIDIAccess | undefined;
   inPorts: { [key: string]: MidiPort };
   outPorts: { [key: string]: MidiPort };
   successCallback: () => void;
   onBeat: () => void;
   isReset: boolean;
-  clockTimes: number[];
-  bpm: number;
-  beatCounter: number;
-  clockCounter: number;
+  clock: MidiClock;
 
   constructor(successCallback: () => void, onBeat: () => void) {
-    this.midi = null;
+    this.midi = undefined;
+    this.clock = new MidiClock(this);
     this.inPorts = {};
     this.outPorts = {};
     this.successCallback = successCallback;
     this.onBeat = onBeat;
-
-    // bpm and clock details TODO move to seperate controller
-    this.clockTimes = [];
-    this.bpm = 0;
-    this.beatCounter = 0;
-    this.clockCounter = 0;
 
     // was this reset during init
     this.isReset = false;
@@ -40,7 +33,7 @@ class MidiManager {
       .then(this.onMIDISuccess.bind(this), onMIDIFailure);
   }
 
-  onMIDISuccess(midiAccess: any): void {
+  onMIDISuccess(midiAccess: MIDIAccess): void {
     if (this.isReset) {
       return;
     }
@@ -53,6 +46,8 @@ class MidiManager {
   }
 
   getInputsAndOutputs(): void {
+    if (!this.midi) throw new Error("No Midi Connection");
+
     const addPort = (
       details: any,
       direction: MidiPortDirection,
@@ -84,7 +79,7 @@ class MidiManager {
 
     for (const port in portList) {
       const p = portList[port];
-      if (p.manufacturer !== "") {
+      if (p.name !== "") {
         returnList.push({ id: p.id, text: p.name });
       }
     }
@@ -97,24 +92,9 @@ class MidiManager {
       return this.outPorts[portID];
     }
   }
-  calculateClock() {
-    // keep a running list of intervals since last clock time
-    this.clockTimes.push(performance.now());
-    if (this.clockTimes.length > 32) {
-      this.clockTimes.shift(); // shift off the first element of the array so we only keep a certain length
-      let startTime = this.clockTimes[0];
-      let endTime = this.clockTimes[this.clockTimes.length - 1];
-      let totalInterval = endTime - startTime;
-      let clockSpeed = 60 / ((totalInterval / 31 / 1000) * 24); // in seconds
-      this.bpm = Math.round(clockSpeed * 10) / 10;
-      this.clockCounter++;
-    }
-    if (this.clockCounter % 3 === 0) {
-      this.beatCounter++;
-      this.onBeat();
-    }
-  }
+
   closePort(portId: string) {
+    if (!this.midi) throw new Error("No Midi Connection");
     let port = this.getPortById(portId);
     let p: any;
     if (port.direction == "input") {
@@ -125,40 +105,40 @@ class MidiManager {
     p.close();
   }
   listenToPort(portId: string) {
+    if (!this.midi) {
+      throw new Error("No Midi Connection");
+      return;
+    }
     let port = this.getPortById(portId);
 
     if (port.direction == "input") {
       const input = this.midi.inputs.get(portId);
+
+      if (!input) throw new Error("Not A valid Input");
+
       input.open(); // opens the port
       input.onmidimessage = (msg: any) => {
         let midiMessage = new MidiMessage(msg.data);
         switch (midiMessage.type) {
           case "start":
-            this.clockTimes = [];
-            this.bpm = 0;
-            this.beatCounter = 0;
-            this.clockCounter = 0;
+            this.clock.start();
             break;
           case "clock":
-            this.calculateClock();
+            this.clock.tick();
+            break;
+          case "stop":
+            this.clock.stop();
             break;
           default:
+            midiMessage.debugPrint();
+
             break;
-        }
-        if (
-          midiMessage.type !== "start" &&
-          midiMessage.type !== "stop" &&
-          midiMessage.type !== "clock"
-        ) {
-          midiMessage.debugPrint();
         }
       };
     } else {
       const output = this.midi.outputs.get(portId);
+      if (!output) throw new Error("Not A valid Output");
       output.open(); // opens the port
-      output.onmidimessage = (msg: any) => {
-        console.log(msg);
-      };
     }
   }
 }

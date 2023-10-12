@@ -17,7 +17,7 @@ const MidiConnector = () => {
         setOutPorts(midiManager.getSimplePortList("output"));
       },
       () => {
-        setBPM(midiManager.bpm);
+        setBPM(midiManager.clock.bpm);
       }
     );
 
