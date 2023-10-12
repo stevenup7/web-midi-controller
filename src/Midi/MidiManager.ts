@@ -1,7 +1,8 @@
-import MidiMessage from "./MidiMessage";
+import MidiMessageDecoder from "./MidiMessageDecoder";
 import MidiPort, { MidiPortDirection } from "./MidiPort";
 import { CheckboxItemData } from "../components/CheckboxGroup";
 import MidiClock from "./MidiClock";
+import MidiMessage from "./MidiMessage";
 
 class MidiManager {
   midi: MIDIAccess | undefined;
@@ -11,12 +12,14 @@ class MidiManager {
   onBeat: () => void;
   isReset: boolean;
   clock: MidiClock;
-
+  activeOutPorts: { [key: string]: MIDIOutput };
   constructor(successCallback: () => void, onBeat: () => void) {
     this.midi = undefined;
     this.clock = new MidiClock(this);
     this.inPorts = {};
     this.outPorts = {};
+    this.activeOutPorts = {};
+
     this.successCallback = successCallback;
     this.onBeat = onBeat;
 
@@ -86,9 +89,9 @@ class MidiManager {
     return returnList;
   }
   getPortById(portID: string): MidiPort {
-    try {
+    if (this.inPorts.hasOwnProperty(portID)) {
       return this.inPorts[portID];
-    } catch (error) {
+    } else {
       return this.outPorts[portID];
     }
   }
@@ -104,6 +107,22 @@ class MidiManager {
     }
     p.close();
   }
+  sendNote(channel: number) {
+    console.log(channel);
+    const m = new MidiMessage();
+
+    for (const port in this.activeOutPorts) {
+      const op = this.activeOutPorts[port];
+      console.log(
+        m.noteOn(channel, "C4"),
+        m.noteOff(channel, "C4")[0].toString(2)
+      );
+      op.send(m.noteOn(channel, "C4")); //omitting the timestamp means send immediately.
+      console.log("test");
+
+      op.send(m.noteOff(channel, "C4"), window.performance.now() + 1000.0); // timestamp = now + 1000ms.
+    }
+  }
   listenToPort(portId: string) {
     if (!this.midi) {
       throw new Error("No Midi Connection");
@@ -118,7 +137,7 @@ class MidiManager {
 
       input.open(); // opens the port
       input.onmidimessage = (msg: any) => {
-        let midiMessage = new MidiMessage(msg.data);
+        let midiMessage = new MidiMessageDecoder(msg.data);
         switch (midiMessage.type) {
           case "start":
             this.clock.start();
@@ -139,6 +158,7 @@ class MidiManager {
       const output = this.midi.outputs.get(portId);
       if (!output) throw new Error("Not A valid Output");
       output.open(); // opens the port
+      this.activeOutPorts[portId] = output;
     }
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import MidiManager from "../Midi/MidiManager";
 import CheckboxGroup, { CheckboxItemData } from "./CheckboxGroup";
+import Button from "./Button";
 
 let midiManager: MidiManager;
 
@@ -34,8 +35,11 @@ const MidiConnector = () => {
       midiManager.closePort(id);
     }
   };
-  const handleOutPortSelection = (_text: string, _id: string) => {
-    alert("not done");
+  const handleOutPortSelection = (_text: string, id: string) => {
+    midiManager.listenToPort(id);
+  };
+  const handleClick = () => {
+    midiManager.sendNote(5);
   };
   return (
     <>
@@ -51,6 +55,7 @@ const MidiConnector = () => {
         items={outPortList}
         onSelectItem={handleOutPortSelection}
       ></CheckboxGroup>
+      <Button onClick={handleClick}>Play A note</Button>
     </>
   );
 };
