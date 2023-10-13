@@ -10,9 +10,8 @@ export const NOTES = [
   "F",
   "F#",
   "G",
-  "G#,",
+  "G#",
 ];
 
 export const C0 = 12;
 export const A0 = 21;
-export const C1 = 24;

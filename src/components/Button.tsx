@@ -1,15 +1,21 @@
 import { ReactNode } from "react";
 
 interface Props {
-  onClick: () => void;
+  onClick: (data: string) => void;
+  data: string;
   children: ReactNode;
 }
 
-const Button = ({ onClick, children }: Props) => {
-  const clickHandler = () => {
-    onClick();
-  };
-  return <button onClick={clickHandler}>{children}</button>;
+const Button = ({ onClick, data, children }: Props) => {
+  return (
+    <button
+      onClick={() => {
+        onClick(data);
+      }}
+    >
+      {children}
+    </button>
+  );
 };
 
 export default Button;

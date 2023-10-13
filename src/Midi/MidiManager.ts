@@ -107,20 +107,16 @@ class MidiManager {
     }
     p.close();
   }
-  sendNote(channel: number) {
+  sendNote(channel: number, note: string, octave: number) {
     console.log(channel);
     const m = new MidiMessage();
-
+    const noteCode = note + octave;
     for (const port in this.activeOutPorts) {
       const op = this.activeOutPorts[port];
-      console.log(
-        m.noteOn(channel, "C4"),
-        m.noteOff(channel, "C4")[0].toString(2)
-      );
-      op.send(m.noteOn(channel, "C4")); //omitting the timestamp means send immediately.
+      op.send(m.noteOn(channel, noteCode)); //omitting the timestamp means send immediately.
       console.log("test");
 
-      op.send(m.noteOff(channel, "C4"), window.performance.now() + 1000.0); // timestamp = now + 1000ms.
+      op.send(m.noteOff(channel, noteCode), window.performance.now() + 1000.0); // timestamp = now + 1000ms.
     }
   }
   listenToPort(portId: string) {
