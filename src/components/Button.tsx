@@ -2,13 +2,23 @@ import { ReactNode } from "react";
 
 interface Props {
   onClick: (data: string) => void;
+  onUp: (data: string) => void;
+  onDown: (data: string) => void;
   data: string;
   children: ReactNode;
 }
 
-const Button = ({ onClick, data, children }: Props) => {
+const Button = ({ onClick, onUp, onDown, data, children }: Props) => {
   return (
     <button
+      type="button"
+      className="btn btn-primary"
+      onMouseUp={() => {
+        onUp(data);
+      }}
+      onMouseDown={() => {
+        onDown(data);
+      }}
       onClick={() => {
         onClick(data);
       }}

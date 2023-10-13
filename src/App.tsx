@@ -4,7 +4,7 @@ function App() {
   return (
     <div className="container">
       <header>
-        <h1>React Testing App</h1>
+        <h1>The Amazing Midi Controller of the future</h1>
       </header>
       <MidiConnector></MidiConnector>
     </div>

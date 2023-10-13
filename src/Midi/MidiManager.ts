@@ -107,18 +107,42 @@ class MidiManager {
     }
     p.close();
   }
-  sendNote(channel: number, note: string, octave: number) {
-    console.log(channel);
-    const m = new MidiMessage();
-    const noteCode = note + octave;
+  sendNote(_channel: number, _note: string, _octave: number) {
+    // const m = new MidiMessage();
+    // const noteCode = this.makeNote(note, octave);
+    // for (const port in this.activeOutPorts) {
+    //   const op = this.activeOutPorts[port];
+    //   op.send(m.noteOn(channel, noteCode)); //omitting the timestamp means send immediately.
+    //   console.log("test");
+    //   op.send(m.noteOff(channel, noteCode), window.performance.now() + 1000.0); // timestamp = now + 1000ms.
+    // }
+  }
+  sendToAll(thingToSend: any) {
     for (const port in this.activeOutPorts) {
       const op = this.activeOutPorts[port];
-      op.send(m.noteOn(channel, noteCode)); //omitting the timestamp means send immediately.
-      console.log("test");
+      console.log(thingToSend);
 
-      op.send(m.noteOff(channel, noteCode), window.performance.now() + 1000.0); // timestamp = now + 1000ms.
+      op.send(thingToSend); //omitting the timestamp means send immediately.
     }
   }
+  sendCC(channel: number, ccNumber: number, ccValue: number) {
+    const m = new MidiMessage();
+    const message = m.ccValue(channel, ccNumber, ccValue);
+    console.log(message);
+    this.sendToAll(message);
+  }
+  makeNote(note: string, octave: number) {
+    return note + octave;
+  }
+  noteDown(channel: number, note: string, octave: number) {
+    const m = new MidiMessage();
+    this.sendToAll(m.noteOn(channel, this.makeNote(note, octave)));
+  }
+  noteUp(channel: number, note: string, octave: number) {
+    const m = new MidiMessage();
+    this.sendToAll(m.noteOff(channel, this.makeNote(note, octave)));
+  }
+
   listenToPort(portId: string) {
     if (!this.midi) {
       throw new Error("No Midi Connection");

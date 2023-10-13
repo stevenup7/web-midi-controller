@@ -1,11 +1,17 @@
 import { A0, NOTES } from "./MusicConstants";
 
-const NOTE_ON = 144;
-const NOTE_OFF = 128;
+const NOTE_ON = 144; // 1001nnnn
+const NOTE_OFF = 128; // 1000nnnn
+const CC_SEND = 176; // 1011nnnn
 
 class MidiMessage {
   constructor() {}
   // TODO velocity
+
+  ccValue(channel: number, ccNumber: number, ccValue: number) {
+    const int_1 = CC_SEND | channel;
+    return [int_1, ccNumber, ccValue];
+  }
   noteOn(channel: number, note: string): number[] {
     const int_1 = NOTE_ON | channel;
     const noteRe = /([A-G]#?)([0-9])/i;

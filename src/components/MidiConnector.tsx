@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import MidiManager from "../Midi/MidiManager";
 import CheckboxGroup, { CheckboxItemData } from "./CheckboxGroup";
-import Button from "./Button";
 import Keyboard from "./Keyboard";
+import Slider from "./Slider";
 
 let midiManager: MidiManager;
 
@@ -39,8 +39,24 @@ const MidiConnector = () => {
   const handleOutPortSelection = (_text: string, id: string) => {
     midiManager.listenToPort(id);
   };
-  const keyboardClick = (data: string) => {
-    midiManager.sendNote(3, data, 4);
+  const keyboardClick = (_data: string) => {
+    // do nothing
+  };
+
+  const keyboardUp = (data: string) => {
+    midiManager.noteUp(3, data, 4);
+  };
+  const keyboardDown = (data: string) => {
+    midiManager.noteDown(3, data, 4);
+  };
+  const delayChange = (val: number) => {
+    // cc 85 for digitakt
+    midiManager.sendCC(8, 85, val);
+  };
+
+  const delayFeedbackChange = (val: number) => {
+    // cc 88 for digitakt
+    midiManager.sendCC(8, 88, val);
   };
   return (
     <>
@@ -53,11 +69,36 @@ const MidiConnector = () => {
         onSelectItem={handleInPortSelection}
       ></CheckboxGroup>
       <h4>Outputs</h4>
+
       <CheckboxGroup
         items={outPortList}
         onSelectItem={handleOutPortSelection}
       ></CheckboxGroup>
-      <Keyboard onClick={keyboardClick}></Keyboard>
+
+      <Slider
+        id="delaytime"
+        min={0}
+        max={127}
+        value={24}
+        onChange={delayChange}
+      >
+        Delay Time
+      </Slider>
+      <Slider
+        id="delayfeedback"
+        min={0}
+        max={127}
+        value={24}
+        onChange={delayFeedbackChange}
+      >
+        Delay Feedback
+      </Slider>
+
+      <Keyboard
+        onDown={keyboardDown}
+        onUp={keyboardUp}
+        onClick={keyboardClick}
+      ></Keyboard>
     </>
   );
 };
