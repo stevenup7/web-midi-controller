@@ -12,6 +12,7 @@ const MidiConnector = () => {
 
   const [inPortList, setInPorts] = useState(initVal);
   const [outPortList, setOutPorts] = useState(initVal);
+
   useEffect(() => {
     midiManager = new MidiManager(
       () => {
@@ -20,6 +21,7 @@ const MidiConnector = () => {
       },
       () => {
         setBPM(midiManager.clock.bpm);
+        midiManager.sendNote(2, "C", 4);
       }
     );
 

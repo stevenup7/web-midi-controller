@@ -82,7 +82,7 @@ class MidiManager {
 
     for (const port in portList) {
       const p = portList[port];
-      if (p.name !== "") {
+      if (p.name.indexOf("Midi Through") !== 0) {
         returnList.push({ id: p.id, text: p.name });
       }
     }
@@ -107,7 +107,13 @@ class MidiManager {
     }
     p.close();
   }
-  sendNote(_channel: number, _note: string, _octave: number) {
+  sendNote(channel: number, note: string, octave: number) {
+    const m = new MidiMessage();
+    this.sendToAll(m.noteOn(channel, this.makeNote(note, octave)));
+    setTimeout(() => {
+      this.sendToAll(m.noteOff(channel, this.makeNote(note, octave)));
+    }, 5);
+
     // const m = new MidiMessage();
     // const noteCode = this.makeNote(note, octave);
     // for (const port in this.activeOutPorts) {
@@ -120,7 +126,7 @@ class MidiManager {
   sendToAll(thingToSend: any) {
     for (const port in this.activeOutPorts) {
       const op = this.activeOutPorts[port];
-      console.log(thingToSend);
+      // console.log(thingToSend);
 
       op.send(thingToSend); //omitting the timestamp means send immediately.
     }
@@ -128,7 +134,6 @@ class MidiManager {
   sendCC(channel: number, ccNumber: number, ccValue: number) {
     const m = new MidiMessage();
     const message = m.ccValue(channel, ccNumber, ccValue);
-    console.log(message);
     this.sendToAll(message);
   }
   makeNote(note: string, octave: number) {

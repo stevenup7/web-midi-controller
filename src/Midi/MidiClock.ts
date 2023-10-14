@@ -34,14 +34,16 @@ class MidiClock {
     this.clockTimes.push(performance.now());
     if (this.clockTimes.length > 32) {
       this.clockTimes.shift(); // shift off the first element of the array so we only keep a certain length
-      let startTime = this.clockTimes[0];
-      let endTime = this.clockTimes[this.clockTimes.length - 1];
-      let totalInterval = endTime - startTime;
-      let clockSpeed = 60 / ((totalInterval / 31 / 1000) * 24); // in seconds
-      this.bpm = Math.round(clockSpeed * 10) / 10;
-      this.clockCounter++;
     }
-    if (this.clockCounter % 3 === 0) {
+    let startTime = this.clockTimes[0];
+    let endTime = this.clockTimes[this.clockTimes.length - 1];
+    let totalInterval = endTime - startTime;
+    let clockSpeed =
+      60 / ((totalInterval / (this.clockTimes.length - 1) / 1000) * 24); // in seconds
+    this.bpm = Math.round(clockSpeed * 10) / 10;
+    this.clockCounter++;
+
+    if (this.clockCounter % 6 === 0 && this.clockCounter > 0) {
       this.beatCounter++;
       this.midiManager.onBeat();
     }

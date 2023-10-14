@@ -9,31 +9,34 @@ class MidiMessage {
   // TODO velocity
 
   ccValue(channel: number, ccNumber: number, ccValue: number) {
-    const int_1 = CC_SEND | channel;
-    return [int_1, ccNumber, ccValue];
+    return [CC_SEND | channel, ccNumber, ccValue];
+  }
+  parseNote(
+    noteDescription: string
+  ): [noteoffset: number, octave: number] | false {
+    const noteRe = /([A-G]#?)([0-9])/i;
+    const match = noteDescription.match(noteRe);
+    if (match) {
+      const octave = parseInt(match[2], 10);
+      const noteoffset = NOTES.indexOf(match[1]);
+      return [noteoffset, octave];
+    }
+    return false;
+  }
+
+  makeNote(type: number, channel: number, note: string): number[] {
+    const noteInfo = this.parseNote(note);
+    if (noteInfo) {
+      return [type | channel, A0 + noteInfo[0] + noteInfo[1] * 12, 127];
+    } else {
+      throw new Error("Not a valid note");
+    }
   }
   noteOn(channel: number, note: string): number[] {
-    const int_1 = NOTE_ON | channel;
-    const noteRe = /([A-G]#?)([0-9])/i;
-    const match = note.match(noteRe);
-    if (match) {
-      const octave = parseInt(match[2], 10);
-      const noteoffset = NOTES.indexOf(match[1]);
-      return [int_1, A0 + noteoffset + octave * 12, 127];
-    }
-    return [];
+    return this.makeNote(NOTE_ON, channel, note);
   }
   noteOff(channel: number, note: string): number[] {
-    const int_1 = NOTE_OFF | channel;
-    const noteRe = /([A-G]#?)([0-9])/i;
-    const match = note.match(noteRe);
-    if (match) {
-      console.log(match[1]);
-      const octave = parseInt(match[2], 10);
-      const noteoffset = NOTES.indexOf(match[1]);
-      return [int_1, A0 + noteoffset + octave * 12, 127];
-    }
-    return [];
+    return this.makeNote(NOTE_OFF, channel, note);
   }
 }
 
