@@ -9,19 +9,18 @@ class MidiManager {
   inPorts: { [key: string]: MidiPort };
   outPorts: { [key: string]: MidiPort };
   successCallback: () => void;
-  onBeat: () => void;
+  onBeat: (beatCount: number) => void;
   isReset: boolean;
   clock: MidiClock;
   activeOutPorts: { [key: string]: MIDIOutput };
-  constructor(successCallback: () => void, onBeat: () => void) {
+  constructor(successCallback: () => void) {
     this.midi = undefined;
     this.clock = new MidiClock(this);
     this.inPorts = {};
     this.outPorts = {};
     this.activeOutPorts = {};
-
+    this.onBeat = (_n) => {};
     this.successCallback = successCallback;
-    this.onBeat = onBeat;
 
     // was this reset during init
     this.isReset = false;
@@ -31,9 +30,15 @@ class MidiManager {
     };
 
     // see if we can get access to some midi ports
+    // TODO: smart errors here
+    // need https:// for midi access (navigator.requestMIDIAccess is not a function on an insecure context)
     navigator
       .requestMIDIAccess()
       .then(this.onMIDISuccess.bind(this), onMIDIFailure);
+  }
+
+  addBeatHandler(onBeat: (beatCount: number) => void) {
+    this.onBeat = onBeat;
   }
 
   onMIDISuccess(midiAccess: MIDIAccess): void {
@@ -113,20 +118,11 @@ class MidiManager {
     setTimeout(() => {
       this.sendToAll(m.noteOff(channel, this.makeNote(note, octave)));
     }, 5);
-
-    // const m = new MidiMessage();
-    // const noteCode = this.makeNote(note, octave);
-    // for (const port in this.activeOutPorts) {
-    //   const op = this.activeOutPorts[port];
-    //   op.send(m.noteOn(channel, noteCode)); //omitting the timestamp means send immediately.
-    //   console.log("test");
-    //   op.send(m.noteOff(channel, noteCode), window.performance.now() + 1000.0); // timestamp = now + 1000ms.
-    // }
   }
   sendToAll(thingToSend: any) {
     for (const port in this.activeOutPorts) {
       const op = this.activeOutPorts[port];
-      // console.log(thingToSend);
+      console.log(thingToSend);
 
       op.send(thingToSend); //omitting the timestamp means send immediately.
     }
@@ -139,13 +135,16 @@ class MidiManager {
   makeNote(note: string, octave: number) {
     return note + octave;
   }
-  noteDown(channel: number, note: string, octave: number) {
+  noteDown(channel: number, note: string) {
     const m = new MidiMessage();
-    this.sendToAll(m.noteOn(channel, this.makeNote(note, octave)));
+    console.log("note on");
+
+    this.sendToAll(m.noteOn(channel, note));
   }
-  noteUp(channel: number, note: string, octave: number) {
+  noteUp(channel: number, note: string) {
     const m = new MidiMessage();
-    this.sendToAll(m.noteOff(channel, this.makeNote(note, octave)));
+    console.log("note off");
+    this.sendToAll(m.noteOff(channel, note));
   }
 
   listenToPort(portId: string) {

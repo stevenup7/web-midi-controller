@@ -1,6 +1,6 @@
 import { useState } from "react";
 import LandingPage from "./components/LandingPage";
-import MidiConnector from "./components/MidiConnector";
+import MidiConnector from "./components/MidiWrapper";
 
 function App() {
   const [shownItem, setShownItem] = useState("landing");

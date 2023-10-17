@@ -25,7 +25,6 @@ const Slider = ({ id, min, max, value, onChange, children }: Props) => {
 
   return (
     <>
-      oo<i className="bi bi-play"></i>pp
       <label htmlFor={id} className="form-label">
         {children}&nbsp;{currVal}
       </label>
