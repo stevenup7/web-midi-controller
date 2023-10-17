@@ -35,7 +35,7 @@ function LandingPage(props: Props) {
               className="btn btn-outline-secondary btn-lg px-4"
             >
               Buy me some coffffffeeee | get more info about the project{" "}
-              <i class="bi bi-github"></i>
+              <i className="bi bi-github"></i>
             </button>
           </div>
         </div>
