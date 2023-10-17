@@ -61,7 +61,7 @@ const MidiConnector = () => {
     midiManager.sendCC(8, 88, val);
   };
   return (
-    <>
+    <div>
       <span>BPM {bpm}</span>
 
       <h4>Inputs</h4>
@@ -101,7 +101,7 @@ const MidiConnector = () => {
         onUp={keyboardUp}
         onClick={keyboardClick}
       ></Keyboard>
-    </>
+    </div>
   );
 };
 
