@@ -18,10 +18,6 @@ function MidiController({ midiManager }: Props) {
     });
   }, []);
 
-  const keyboardClick = (_data: string) => {
-    // do nothing
-  };
-
   const keyboardUp = (data: string) => {
     midiManager.noteUp(4, data);
   };

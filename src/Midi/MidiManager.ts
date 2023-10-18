@@ -88,7 +88,7 @@ class MidiManager {
     for (const port in portList) {
       const p = portList[port];
       if (p.name.indexOf("Midi Through") !== 0) {
-        returnList.push({ id: p.id, text: p.name });
+        returnList.push({ id: p.id, text: p.name, checked: p.connected });
       }
     }
     return returnList;
@@ -160,6 +160,7 @@ class MidiManager {
       if (!input) throw new Error("Not A valid Input");
 
       input.open(); // opens the port
+      port.connected = true;
       input.onmidimessage = (msg: any) => {
         let midiMessage = new MidiMessageDecoder(msg.data);
         switch (midiMessage.type) {
@@ -182,6 +183,7 @@ class MidiManager {
       const output = this.midi.outputs.get(portId);
       if (!output) throw new Error("Not A valid Output");
       output.open(); // opens the port
+      port.connected = true;
       this.activeOutPorts[portId] = output;
     }
   }

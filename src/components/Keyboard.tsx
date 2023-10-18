@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NOTES, OCTAVE } from "../Midi/MusicConstants";
+import { OCTAVE } from "../Midi/MusicConstants";
 
 import "./keyboard.css";
 

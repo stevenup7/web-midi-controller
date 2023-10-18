@@ -3,6 +3,7 @@ import { ChangeEvent } from "react";
 interface CheckboxItemData {
   id: string;
   text: string;
+  checked: boolean;
 }
 
 interface Props {
@@ -29,6 +30,7 @@ function CheckboxGroup(props: Props) {
               onChange={(e) => {
                 handleChange(e, item);
               }}
+              defaultChecked={item.checked}
             />
             <label className="form-check-label" htmlFor={item.id}>
               {item.text}

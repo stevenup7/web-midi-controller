@@ -36,12 +36,29 @@ const MidiConnector = () => {
 
           <ul className="nav nav-pills">
             <li className="nav-item">
-              <a href="#" className="nav-link active" aria-current="page">
+              <a
+                href="#"
+                onClick={() => {
+                  setDisplayMode("controller");
+                }}
+                className={
+                  displayMode == "controller" ? "nav-link active" : "nav-link"
+                }
+                aria-current="page"
+              >
                 Controller
               </a>
             </li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
+              <a
+                href="#"
+                className={
+                  displayMode == "config" ? "nav-link active" : "nav-link"
+                }
+                onClick={() => {
+                  setDisplayMode("config");
+                }}
+              >
                 Config
               </a>
             </li>
