@@ -108,8 +108,9 @@ class MidiManager {
     if (port.direction == "input") {
       p = this.midi.inputs.get(portId);
     } else {
-      p = this.midi.inputs.get(portId);
+      p = this.midi.outputs.get(portId);
     }
+    port.connected = false;
     p.close();
   }
   sendNote(channel: number, note: string, octave: number) {

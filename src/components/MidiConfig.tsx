@@ -16,7 +16,45 @@ function MidiConfig({ midiManager, onClose }: Props) {
   useEffect(() => {
     setInPorts(midiManager.getSimplePortList("input"));
     setOutPorts(midiManager.getSimplePortList("output"));
+
+    let currConfig = getLocalStorageConnectionData();
+    console.log(currConfig);
+
+    for (const portId in currConfig) {
+      if (Object.prototype.hasOwnProperty.call(currConfig, portId)) {
+        const portConfig = currConfig[portId];
+        if (portConfig) {
+          console.log(portId, portConfig);
+          // const port = midiManager.getPortById(portId);
+          midiManager.listenToPort(portId);
+        }
+      }
+    }
   }, []);
+
+  const getLocalStorageConnectionData = () => {
+    const currData = localStorage.getItem("port-config");
+    let currConfig: { [key: string]: boolean };
+    if (currData !== null) {
+      currConfig = JSON.parse(currData);
+    } else {
+      currConfig = {};
+    }
+    return currConfig;
+  };
+  const savePortConfig = () => {
+    let currConfig = getLocalStorageConnectionData();
+    // combine the in and out ports
+    let allPorts = inPortList.concat(outPortList);
+    for (let p = 0; p < allPorts.length; p++) {
+      currConfig[allPorts[p].id] = midiManager.getPortById(
+        allPorts[p].id
+      ).connected;
+    }
+    console.log(currConfig);
+
+    localStorage.setItem("port-config", JSON.stringify(currConfig));
+  };
 
   // handle the turning on and off ports
   // TODO: only listen for clock on one port
@@ -26,13 +64,23 @@ function MidiConfig({ midiManager, onClose }: Props) {
     } else {
       midiManager.closePort(id);
     }
+    savePortConfig();
   };
 
   // handle turning on and off a output port
   // TODO: turn back off
   // TODO: change call (should be open not listen)
-  const handleOutPortSelection = (_text: string, id: string) => {
-    midiManager.listenToPort(id);
+  const handleOutPortSelection = (
+    _text: string,
+    id: string,
+    state: boolean
+  ) => {
+    if (state) {
+      midiManager.listenToPort(id);
+    } else {
+      midiManager.closePort(id);
+    }
+    savePortConfig();
   };
 
   return (
