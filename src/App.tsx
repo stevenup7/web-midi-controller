@@ -1,5 +1,5 @@
 import { useState } from "react";
-import LandingPage from "./components/LandingPage";
+import ScreenLandingPage from "./components/ScreenLandingPage";
 import MidiConnector from "./components/MidiWrapper";
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   return (
     <div className="container">
       {shownItem == "landing" ? (
-        <LandingPage onHide={landingHidden}></LandingPage>
+        <ScreenLandingPage onHide={landingHidden}></ScreenLandingPage>
       ) : null}
 
       {shownItem == "midi" ? <MidiConnector></MidiConnector> : null}
