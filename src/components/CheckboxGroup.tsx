@@ -3,14 +3,20 @@ import { ChangeEvent } from "react";
 interface CheckboxItemData {
   id: string;
   text: string;
+  checked: boolean;
 }
 
 interface Props {
   items: CheckboxItemData[];
+  style?: string;
   onSelectItem: (text: string, id: string, state: boolean) => void;
 }
 
 function CheckboxGroup(props: Props) {
+  let cbStyle = "switch";
+  if (typeof props.style !== "undefined") {
+    cbStyle = props.style;
+  }
   const handleChange = (
     e: ChangeEvent<HTMLInputElement>,
     item: CheckboxItemData
@@ -21,7 +27,12 @@ function CheckboxGroup(props: Props) {
     <>
       {props.items.map((item, i) => {
         return (
-          <div className="form-check form-switch" key={i}>
+          <div
+            className={
+              props.style === "switch" ? "form-check form-switch" : "form-check"
+            }
+            key={i}
+          >
             <input
               className="form-check-input"
               type="checkbox"
@@ -29,6 +40,7 @@ function CheckboxGroup(props: Props) {
               onChange={(e) => {
                 handleChange(e, item);
               }}
+              defaultChecked={item.checked}
             />
             <label className="form-check-label" htmlFor={item.id}>
               {item.text}

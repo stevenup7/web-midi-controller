@@ -9,20 +9,20 @@ class MidiManager {
   inPorts: { [key: string]: MidiPort };
   outPorts: { [key: string]: MidiPort };
   successCallback: () => void;
-  onBeat: () => void;
+  onBeat: (beatCount: number) => void;
   isReset: boolean;
   clock: MidiClock;
+  fxChannels: number[];
   activeOutPorts: { [key: string]: MIDIOutput };
-  constructor(successCallback: () => void, onBeat: () => void) {
+  constructor(successCallback: () => void) {
     this.midi = undefined;
     this.clock = new MidiClock(this);
     this.inPorts = {};
     this.outPorts = {};
     this.activeOutPorts = {};
-
+    this.onBeat = (_n) => {};
     this.successCallback = successCallback;
-    this.onBeat = onBeat;
-
+    this.fxChannels = [];
     // was this reset during init
     this.isReset = false;
 
@@ -31,9 +31,28 @@ class MidiManager {
     };
 
     // see if we can get access to some midi ports
+    // TODO: smart errors here
+    // need https:// for midi access (navigator.requestMIDIAccess is not a function on an insecure context)
     navigator
       .requestMIDIAccess()
       .then(this.onMIDISuccess.bind(this), onMIDIFailure);
+  }
+
+  addBeatHandler(onBeat: (beatCount: number) => void) {
+    this.onBeat = onBeat;
+  }
+
+  addFXChannel(channel: number) {
+    if (this.fxChannels.indexOf(channel) == -1) {
+      this.fxChannels.push(channel);
+    }
+  }
+
+  removeFXChannel(channel: number) {
+    const idx = this.fxChannels.indexOf(channel);
+    if (idx > -1) {
+      this.fxChannels.splice(channel, idx);
+    }
   }
 
   onMIDISuccess(midiAccess: MIDIAccess): void {
@@ -83,7 +102,7 @@ class MidiManager {
     for (const port in portList) {
       const p = portList[port];
       if (p.name.indexOf("Midi Through") !== 0) {
-        returnList.push({ id: p.id, text: p.name });
+        returnList.push({ id: p.id, text: p.name, checked: p.connected });
       }
     }
     return returnList;
@@ -103,8 +122,9 @@ class MidiManager {
     if (port.direction == "input") {
       p = this.midi.inputs.get(portId);
     } else {
-      p = this.midi.inputs.get(portId);
+      p = this.midi.outputs.get(portId);
     }
+    port.connected = false;
     p.close();
   }
   sendNote(channel: number, note: string, octave: number) {
@@ -113,22 +133,18 @@ class MidiManager {
     setTimeout(() => {
       this.sendToAll(m.noteOff(channel, this.makeNote(note, octave)));
     }, 5);
-
-    // const m = new MidiMessage();
-    // const noteCode = this.makeNote(note, octave);
-    // for (const port in this.activeOutPorts) {
-    //   const op = this.activeOutPorts[port];
-    //   op.send(m.noteOn(channel, noteCode)); //omitting the timestamp means send immediately.
-    //   console.log("test");
-    //   op.send(m.noteOff(channel, noteCode), window.performance.now() + 1000.0); // timestamp = now + 1000ms.
-    // }
   }
   sendToAll(thingToSend: any) {
     for (const port in this.activeOutPorts) {
       const op = this.activeOutPorts[port];
-      // console.log(thingToSend);
+      console.log(thingToSend);
 
       op.send(thingToSend); //omitting the timestamp means send immediately.
+    }
+  }
+  sendFXMessage(ccNumber: number, ccValue: number) {
+    for (let i = 0; i < this.fxChannels.length; i++) {
+      this.sendCC(this.fxChannels[i], ccNumber, ccValue);
     }
   }
   sendCC(channel: number, ccNumber: number, ccValue: number) {
@@ -139,13 +155,16 @@ class MidiManager {
   makeNote(note: string, octave: number) {
     return note + octave;
   }
-  noteDown(channel: number, note: string, octave: number) {
+  noteDown(channel: number, note: string) {
     const m = new MidiMessage();
-    this.sendToAll(m.noteOn(channel, this.makeNote(note, octave)));
+    console.log("note on");
+
+    this.sendToAll(m.noteOn(channel, note));
   }
-  noteUp(channel: number, note: string, octave: number) {
+  noteUp(channel: number, note: string) {
     const m = new MidiMessage();
-    this.sendToAll(m.noteOff(channel, this.makeNote(note, octave)));
+    console.log("note off");
+    this.sendToAll(m.noteOff(channel, note));
   }
 
   listenToPort(portId: string) {
@@ -161,6 +180,7 @@ class MidiManager {
       if (!input) throw new Error("Not A valid Input");
 
       input.open(); // opens the port
+      port.connected = true;
       input.onmidimessage = (msg: any) => {
         let midiMessage = new MidiMessageDecoder(msg.data);
         switch (midiMessage.type) {
@@ -183,6 +203,7 @@ class MidiManager {
       const output = this.midi.outputs.get(portId);
       if (!output) throw new Error("Not A valid Output");
       output.open(); // opens the port
+      port.connected = true;
       this.activeOutPorts[portId] = output;
     }
   }

@@ -6,6 +6,7 @@ class MidiPort {
   name: string;
   version: string;
   direction: MidiPortDirection;
+  connected: boolean;
 
   constructor(
     id: string,
@@ -19,6 +20,7 @@ class MidiPort {
     this.name = name;
     this.version = version;
     this.direction = direction;
+    this.connected = false;
   }
 
   toString(): string {
