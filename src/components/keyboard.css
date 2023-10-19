@@ -1,44 +1,38 @@
 .paino-key {
-    box-sizing: border-box;
+    box-sizing:border-box;
     background-color: white;
     border-radius: 3px;
     border: 1px solid black;
-    width: 2em;
-    height: 7em;
+    border-top-width: 0px; 
+    width: 26px;
+    height: 100px;
     color :black;
-    position: relative;
-    top: 0;
-    left: 0;
     text-align: center;        
     display: flex;
-    margin: 0 .1em;
+    margin: 0px;
+}
+.black-paino-key {
+    margin: 0 -13px;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    height: 60px;
+    z-index: 100;
 }
 .paino-key span {
     align-self: flex-end;
-    display: block;
-    width: 2em;
+    width: 30px;
     font-size: .8em;
     opacity: .25;
 }
 
-.black-paino-key {
-    position: relative;    
-    margin-left: -0.9em;
-    margin-right: -0.9em;
-    background-color: black;
-    color: white;
-    border: 1px solid white;
-    height: 4em;
-    z-index: 100;
-}
+
 
 .keyboard-wrapper {
     z-index: 99;
     position: relative;
-    height: 9em;
+    height: 130px;
     display: flex;
-    
-    padding-bottom: 8em;
     overflow-x: scroll;
     overflow-y: hidden;
 }
