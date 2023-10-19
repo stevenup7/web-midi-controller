@@ -26,17 +26,17 @@ function MidiController({ midiManager }: Props) {
   };
   const delayChange = (val: number) => {
     // cc 85 for digitakt
-    midiManager.sendCC(17, 85, val - 1);
+    midiManager.sendFXMessage(85, val - 1);
   };
 
   const delayFeedbackChange = (val: number) => {
     // cc 88 for digitakt
-    midiManager.sendCC(16, 88, val - 1);
+    midiManager.sendFXMessage(88, val - 1);
   };
   return (
     <div className="container text-left">
       <div className="row">
-        <div className="col"></div>
+        <div className="col">fx channel </div>
         <div className="col"></div>
         <div className="col text-right">
           <span>BPM {bpm}</span>

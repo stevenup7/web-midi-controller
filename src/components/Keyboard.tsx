@@ -57,7 +57,7 @@ const Keyboard = ({ onDown, onUp }: KeyboardProps) => {
   // set up the keyboard
   useEffect(() => {
     let allKeys: string[] = [];
-    for (let oct = 0; oct < 8; oct++) {
+    for (let oct = 3; oct < 8; oct++) {
       for (let n = 0; n < OCTAVE.length; n++) {
         const currNote = OCTAVE[n];
         allKeys.push(currNote + oct);

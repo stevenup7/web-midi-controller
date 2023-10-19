@@ -12,6 +12,7 @@ class MidiManager {
   onBeat: (beatCount: number) => void;
   isReset: boolean;
   clock: MidiClock;
+  fxChannels: number[];
   activeOutPorts: { [key: string]: MIDIOutput };
   constructor(successCallback: () => void) {
     this.midi = undefined;
@@ -21,7 +22,7 @@ class MidiManager {
     this.activeOutPorts = {};
     this.onBeat = (_n) => {};
     this.successCallback = successCallback;
-
+    this.fxChannels = [];
     // was this reset during init
     this.isReset = false;
 
@@ -39,6 +40,19 @@ class MidiManager {
 
   addBeatHandler(onBeat: (beatCount: number) => void) {
     this.onBeat = onBeat;
+  }
+
+  addFXChannel(channel: number) {
+    if (this.fxChannels.indexOf(channel) == -1) {
+      this.fxChannels.push(channel);
+    }
+  }
+
+  removeFXChannel(channel: number) {
+    const idx = this.fxChannels.indexOf(channel);
+    if (idx > -1) {
+      this.fxChannels.splice(channel, idx);
+    }
   }
 
   onMIDISuccess(midiAccess: MIDIAccess): void {
@@ -126,6 +140,11 @@ class MidiManager {
       console.log(thingToSend);
 
       op.send(thingToSend); //omitting the timestamp means send immediately.
+    }
+  }
+  sendFXMessage(ccNumber: number, ccValue: number) {
+    for (let i = 0; i < this.fxChannels.length; i++) {
+      this.sendCC(this.fxChannels[i], ccNumber, ccValue);
     }
   }
   sendCC(channel: number, ccNumber: number, ccValue: number) {

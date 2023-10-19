@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import MidiManager from "../Midi/MidiManager";
 import CheckboxGroup, { CheckboxItemData } from "./CheckboxGroup";
 import Button from "./Button";
+import { MIDIPORTNUMBERS } from "../Midi/MusicConstants";
 
 interface Props {
   midiManager: MidiManager;
@@ -24,14 +25,20 @@ function MidiConfig({ midiManager, onClose }: Props) {
       if (Object.prototype.hasOwnProperty.call(currConfig, portId)) {
         const portConfig = currConfig[portId];
         if (portConfig) {
-          console.log(portId, portConfig);
-          // const port = midiManager.getPortById(portId);
           midiManager.listenToPort(portId);
         }
       }
     }
   }, []);
 
+  let midiPortNumbers: CheckboxItemData[] = [];
+  for (let p = 0; p < MIDIPORTNUMBERS.length; p++) {
+    midiPortNumbers.push({
+      id: (parseInt(MIDIPORTNUMBERS[p], 10) - 1).toString(),
+      text: MIDIPORTNUMBERS[p],
+      checked: false,
+    });
+  }
   const getLocalStorageConnectionData = () => {
     const currData = localStorage.getItem("port-config");
     let currConfig: { [key: string]: boolean };
@@ -67,6 +74,14 @@ function MidiConfig({ midiManager, onClose }: Props) {
     savePortConfig();
   };
 
+  const handleFXPortSelection = (_text: string, id: string, state: boolean) => {
+    if (state) {
+      midiManager.addFXChannel(parseInt(id, 10));
+    } else {
+      midiManager.removeFXChannel(parseInt(id, 10));
+    }
+  };
+
   // handle turning on and off a output port
   // TODO: turn back off
   // TODO: change call (should be open not listen)
@@ -88,7 +103,7 @@ function MidiConfig({ midiManager, onClose }: Props) {
       <h3>
         <i className="bi bi-usb-plug"></i> Avaialable Midi Connections
       </h3>
-
+      <br />
       <h4>
         <i className="bi bi-box-arrow-in-left"></i> Inputs
       </h4>
@@ -96,15 +111,24 @@ function MidiConfig({ midiManager, onClose }: Props) {
         items={inPortList}
         onSelectItem={handleInPortSelection}
       ></CheckboxGroup>
-
+      <br />
       <h4>
         <i className="bi bi-box-arrow-right"></i> Outputs
       </h4>
-
       <CheckboxGroup
         items={outPortList}
         onSelectItem={handleOutPortSelection}
       ></CheckboxGroup>
+      <br />
+      <h4>
+        <i className="bi bi-soundwave"></i> FX Channels
+      </h4>
+      <CheckboxGroup
+        style="default"
+        items={midiPortNumbers}
+        onSelectItem={handleFXPortSelection}
+      ></CheckboxGroup>
+
       <hr></hr>
       <Button
         onClick={() => {
