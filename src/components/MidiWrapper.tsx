@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import MidiManager from "../Midi/MidiManager";
 import MidiConfig from "./MidiConfig";
 import MidiController from "./MidiController";
+import ScreenHelp from "./ScreenHelp";
 
 let midiManager: MidiManager;
 
@@ -63,7 +64,15 @@ const MidiConnector = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a href="#" className="nav-link">
+              <a
+                href="#"
+                className={
+                  displayMode == "help" ? "nav-link active" : "nav-link"
+                }
+                onClick={() => {
+                  setDisplayMode("help");
+                }}
+              >
                 Help
               </a>
             </li>
@@ -81,6 +90,14 @@ const MidiConnector = () => {
 
         {displayMode == "controller" ? (
           <MidiController midiManager={midiManager}></MidiController>
+        ) : null}
+
+        {displayMode == "help" ? (
+          <ScreenHelp
+            onHide={() => {
+              setDisplayMode("help");
+            }}
+          ></ScreenHelp>
         ) : null}
       </div>
     </>

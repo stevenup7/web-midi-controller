@@ -1,21 +1,11 @@
-import { useState } from "react";
-
 interface Props {
   onHide: () => void;
 }
 
-function LandingPage(props: Props) {
-  const defaultWrapperClass = "px-4 py-5 my-5 text-center";
-  const [wrapperClass, setWrapperClass] = useState(defaultWrapperClass);
-
-  const hide = () => {
-    setWrapperClass(defaultWrapperClass + " d-none");
-    props.onHide();
-  };
-
+function ScreenLandingPage(props: Props) {
   return (
     <>
-      <div className={wrapperClass}>
+      <div className="containerpx-4 py-5 my-5 text-center">
         <h1 className="display-5 fw-bold">Web Midi Controller</h1>
         <div className="col-lg-6 mx-auto">
           <p className="lead mb-4">
@@ -26,13 +16,18 @@ function LandingPage(props: Props) {
             <button
               type="button"
               className="btn btn-primary btn-lg px-4 gap-3"
-              onClick={hide}
+              onClick={props.onHide}
             >
               Continue to config screen
             </button>
             <button
               type="button"
               className="btn btn-outline-secondary btn-lg px-4"
+              onClick={() => {
+                const GITHUBLOCATION =
+                  "https://github.com/stevenup7/web-midi-controller";
+                document.location.href = GITHUBLOCATION;
+              }}
             >
               See the project on github
               <i className="bi bi-github"></i>
@@ -43,4 +38,4 @@ function LandingPage(props: Props) {
     </>
   );
 }
-export default LandingPage;
+export default ScreenLandingPage;

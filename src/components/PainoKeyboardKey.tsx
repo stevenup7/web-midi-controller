@@ -9,7 +9,6 @@ interface PainoKeyProps {
 // this should stop the context menu appearing when you hold a touch on a key
 // TODO: seems to not prevent selection on the span with the key name
 const handleContextMenu = (e: any) => {
-  console.log("blocking context menu now");
   e.preventDefault();
 };
 
@@ -57,7 +56,7 @@ function PainoKey({ note, onUp, onDown }: PainoKeyProps) {
         keyDown(note);
       }}
       onTouchEnd={() => {
-        keyDown(note);
+        keyUp(note);
       }}
     >
       <span onContextMenu={handleContextMenu} onSelect={handleContextMenu}>
