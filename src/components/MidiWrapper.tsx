@@ -66,7 +66,9 @@ const MidiConnector = () => {
             <li className="nav-item">
               <a
                 href="#"
-                className="nav-link"
+                className={
+                  displayMode == "help" ? "nav-link active" : "nav-link"
+                }
                 onClick={() => {
                   setDisplayMode("help");
                 }}
