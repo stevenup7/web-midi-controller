@@ -11,8 +11,10 @@ interface Props {
 
 function MidiConfig({ midiManager, onClose }: Props) {
   const initVal: CheckboxItemData[] = [];
+  const initialFxPortNumbers: CheckboxItemData[] = [];
   const [inPortList, setInPorts] = useState(initVal);
   const [outPortList, setOutPorts] = useState(initVal);
+  const [fxPortList, setFxPorts] = useState(initialFxPortNumbers);
 
   useEffect(() => {
     setInPorts(midiManager.getSimplePortList("input"));
@@ -21,46 +23,57 @@ function MidiConfig({ midiManager, onClose }: Props) {
     let currConfig = getLocalStorageConnectionData();
     console.log(currConfig);
 
-    for (const portId in currConfig) {
-      if (Object.prototype.hasOwnProperty.call(currConfig, portId)) {
-        const portConfig = currConfig[portId];
+    for (const portId in currConfig.midiConnections) {
+      if (currConfig.midiConnections.hasOwnProperty(portId)) {
+        const portConfig = currConfig.midiConnections[portId];
         if (portConfig) {
           midiManager.listenToPort(portId);
         }
       }
     }
+
+    let fxPortNumbers: CheckboxItemData[] = [];
+    for (let p = 0; p < MIDIPORTNUMBERS.length; p++) {
+      const n = parseInt(MIDIPORTNUMBERS[p], 10) - 1;
+      const connected = currConfig.fxPortList.indexOf(n) !== -1;
+      fxPortNumbers.push({
+        id: n.toString(),
+        text: MIDIPORTNUMBERS[p],
+        checked: connected,
+      });
+      if (connected) {
+        midiManager.addFXChannel(n);
+      }
+    }
+    setFxPorts(fxPortNumbers);
   }, []);
 
-  let midiPortNumbers: CheckboxItemData[] = [];
-  for (let p = 0; p < MIDIPORTNUMBERS.length; p++) {
-    midiPortNumbers.push({
-      id: (parseInt(MIDIPORTNUMBERS[p], 10) - 1).toString(),
-      text: MIDIPORTNUMBERS[p],
-      checked: false,
-    });
-  }
   const getLocalStorageConnectionData = () => {
-    const currData = localStorage.getItem("port-config");
-    let currConfig: { [key: string]: boolean };
+    const currData = localStorage.getItem("midi-manager-config");
+    let currConfig: {
+      fxPortList: number[];
+      midiConnections: { [key: string]: boolean };
+    };
+
     if (currData !== null) {
       currConfig = JSON.parse(currData);
     } else {
-      currConfig = {};
+      currConfig = { fxPortList: [], midiConnections: {} };
     }
     return currConfig;
   };
-  const savePortConfig = () => {
+  const saveSettingsConfig = () => {
     let currConfig = getLocalStorageConnectionData();
     // combine the in and out ports
     let allPorts = inPortList.concat(outPortList);
     for (let p = 0; p < allPorts.length; p++) {
-      currConfig[allPorts[p].id] = midiManager.getPortById(
+      currConfig.midiConnections[allPorts[p].id] = midiManager.getPortById(
         allPorts[p].id
       ).connected;
     }
+    currConfig.fxPortList = midiManager.fxChannels;
     console.log(currConfig);
-
-    localStorage.setItem("port-config", JSON.stringify(currConfig));
+    localStorage.setItem("midi-manager-config", JSON.stringify(currConfig));
   };
 
   // handle the turning on and off ports
@@ -71,7 +84,7 @@ function MidiConfig({ midiManager, onClose }: Props) {
     } else {
       midiManager.closePort(id);
     }
-    savePortConfig();
+    saveSettingsConfig();
   };
 
   const handleFXPortSelection = (_text: string, id: string, state: boolean) => {
@@ -80,6 +93,7 @@ function MidiConfig({ midiManager, onClose }: Props) {
     } else {
       midiManager.removeFXChannel(parseInt(id, 10));
     }
+    saveSettingsConfig();
   };
 
   // handle turning on and off a output port
@@ -95,7 +109,7 @@ function MidiConfig({ midiManager, onClose }: Props) {
     } else {
       midiManager.closePort(id);
     }
-    savePortConfig();
+    saveSettingsConfig();
   };
 
   return (
@@ -125,7 +139,7 @@ function MidiConfig({ midiManager, onClose }: Props) {
       </h4>
       <CheckboxGroup
         style="default"
-        items={midiPortNumbers}
+        items={fxPortList}
         onSelectItem={handleFXPortSelection}
       ></CheckboxGroup>
 
