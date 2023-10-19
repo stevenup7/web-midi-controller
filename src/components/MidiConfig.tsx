@@ -97,7 +97,6 @@ function MidiConfig({ midiManager, onClose }: Props) {
   };
 
   // handle turning on and off a output port
-  // TODO: turn back off
   // TODO: change call (should be open not listen)
   const handleOutPortSelection = (
     _text: string,
