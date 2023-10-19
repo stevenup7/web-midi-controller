@@ -11,6 +11,12 @@
     display: flex;
     margin: 0px;
 }
+.paino-key.active-key {
+    background-color:#f2dea7; 
+}
+.black-paino-key.active-key {
+background-color: rgb(63, 51, 30);
+}
 .black-paino-key {
     margin: 0 -13px;
     background-color: black;
@@ -21,6 +27,7 @@
 }
 .paino-key span {
     align-self: flex-end;
+    user-select: none;  
     width: 30px;
     font-size: .8em;
     opacity: .25;

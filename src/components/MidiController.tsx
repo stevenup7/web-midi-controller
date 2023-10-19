@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import MidiManager from "../Midi/MidiManager";
-import Keyboard from "./Keyboard";
+import PainoKeyboard from "./PainoKeyboard";
 import Slider from "./Slider";
 
 interface Props {
@@ -70,7 +70,10 @@ function MidiController({ midiManager }: Props) {
       </div>
       <div className="row">
         <div className="col">
-          <Keyboard onDown={keyboardDown} onUp={keyboardUp}></Keyboard>
+          <PainoKeyboard
+            onDown={keyboardDown}
+            onUp={keyboardUp}
+          ></PainoKeyboard>
         </div>
       </div>
     </div>
