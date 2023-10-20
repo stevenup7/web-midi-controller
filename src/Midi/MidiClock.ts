@@ -17,6 +17,12 @@ class MidiClock {
     this.clockCounter = 0;
     this.running = false;
   }
+  startGenerating() {
+    this.start();
+    let timerInterval = setInterval(() => {
+      this.tick();
+    }, 1000 / 24);
+  }
   start() {
     this.running = true;
     this.clockTimes = [];
@@ -45,7 +51,7 @@ class MidiClock {
 
     if (this.clockCounter % 6 === 0 && this.clockCounter > 0) {
       this.beatCounter++;
-      this.midiManager.onBeat();
+      this.midiManager.beatHandler(this.beatCounter);
     }
   }
 }

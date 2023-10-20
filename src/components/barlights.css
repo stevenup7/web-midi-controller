@@ -1,0 +1,10 @@
+.barlight {
+    color: orange;
+}
+
+.barlight.current-beat {
+    color: yellow
+}
+.barlight.current-beat4th {
+    color: red
+}

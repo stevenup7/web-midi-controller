@@ -3,13 +3,16 @@ import MidiPort, { MidiPortDirection } from "./MidiPort";
 import { CheckboxItemData } from "../components/CheckboxGroup";
 import MidiClock from "./MidiClock";
 import MidiMessage from "./MidiMessage";
+interface cbFn {
+  (beatNumber: number): void;
+}
 
 class MidiManager {
   midi: MIDIAccess | undefined;
   inPorts: { [key: string]: MidiPort };
   outPorts: { [key: string]: MidiPort };
   successCallback: () => void;
-  onBeat: (beatCount: number) => void;
+  onBeat: cbFn[];
   isReset: boolean;
   clock: MidiClock;
   fxChannels: number[];
@@ -20,7 +23,7 @@ class MidiManager {
     this.inPorts = {};
     this.outPorts = {};
     this.activeOutPorts = {};
-    this.onBeat = (_n) => {};
+    this.onBeat = [];
     this.successCallback = successCallback;
     this.fxChannels = [];
     // was this reset during init
@@ -39,7 +42,12 @@ class MidiManager {
   }
 
   addBeatHandler(onBeat: (beatCount: number) => void) {
-    this.onBeat = onBeat;
+    this.onBeat.push(onBeat);
+  }
+  beatHandler(beatCount: number) {
+    this.onBeat.forEach((cb) => {
+      cb(beatCount);
+    }, this);
   }
 
   addFXChannel(channel: number) {
