@@ -7,7 +7,7 @@ class MidiClock {
   beatCounter: number;
   clockCounter: number;
   running: boolean;
-
+  timerInterval: number;
   constructor(midiManager: MidiManager) {
     this.midiManager = midiManager;
     // bpm and clock details TODO move to seperate controller
@@ -16,10 +16,12 @@ class MidiClock {
     this.beatCounter = 0;
     this.clockCounter = 0;
     this.running = false;
+    this.timerInterval = -1;
   }
   startGenerating() {
     this.start();
-    let timerInterval = setInterval(() => {
+    clearInterval(this.timerInterval);
+    this.timerInterval = setInterval(() => {
       this.tick();
     }, 1000 / 24);
   }

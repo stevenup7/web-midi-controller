@@ -12,7 +12,7 @@ class MidiManager {
   inPorts: { [key: string]: MidiPort };
   outPorts: { [key: string]: MidiPort };
   successCallback: () => void;
-  onBeat: cbFn[];
+  onBeatCallBackFunctionList: cbFn[];
   isReset: boolean;
   clock: MidiClock;
   fxChannels: number[];
@@ -23,7 +23,7 @@ class MidiManager {
     this.inPorts = {};
     this.outPorts = {};
     this.activeOutPorts = {};
-    this.onBeat = [];
+    this.onBeatCallBackFunctionList = [];
     this.successCallback = successCallback;
     this.fxChannels = [];
     // was this reset during init
@@ -42,10 +42,18 @@ class MidiManager {
   }
 
   addBeatHandler(onBeat: (beatCount: number) => void) {
-    this.onBeat.push(onBeat);
+    if (this.onBeatCallBackFunctionList.indexOf(onBeat) == -1) {
+      this.onBeatCallBackFunctionList.push(onBeat);
+    } else {
+      // this is called at the moment when useeffect is called twice becuase of StrictMode in main.tsx
+      console.warn(
+        "not adding beathandler becuase funciton already in beathandlers"
+      );
+    }
   }
   beatHandler(beatCount: number) {
-    this.onBeat.forEach((cb) => {
+    // call all the handler functions in the list
+    this.onBeatCallBackFunctionList.forEach((cb) => {
       cb(beatCount);
     }, this);
   }

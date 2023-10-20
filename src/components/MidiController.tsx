@@ -52,7 +52,7 @@ function MidiController({ midiManager }: Props) {
           <BarLights midiManager={midiManager}></BarLights>
         </div>
       </div>
-
+      <hr />
       <div className="row">
         <div className="col">
           <Slider
@@ -78,6 +78,7 @@ function MidiController({ midiManager }: Props) {
           </Slider>
         </div>
       </div>
+      <hr />=
       <div className="row">
         <div className="col">
           <PainoKeyboard

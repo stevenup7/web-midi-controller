@@ -1,10 +1,12 @@
 .barlight {
     color: orange;
 }
-
-.barlight.current-beat {
-    color: yellow
+.barlight.beat4th {
+    color: yellow;
 }
-.barlight.current-beat4th {
+.barlight.current-beat {
+    color: red
+}
+.barlight.current-beat.beat4th {
     color: red
 }
