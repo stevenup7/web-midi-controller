@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import MidiManager from "../Midi/MidiManager";
 import PainoKeyboard from "./PainoKeyboard";
 import Slider from "./Slider";
+import BarLights from "./BarLights";
+import Button from "./Button";
 
 interface Props {
   midiManager: MidiManager;
@@ -36,13 +38,21 @@ function MidiController({ midiManager }: Props) {
   return (
     <div className="container text-left">
       <div className="row">
-        <div className="col">fx channel </div>
-        <div className="col"></div>
+        <div className="col">
+          <Button
+            onClick={() => {
+              midiManager.clock.startGenerating();
+            }}
+          >
+            Fake Clock
+          </Button>
+        </div>
         <div className="col text-right">
           <span>BPM {bpm}</span>
+          <BarLights midiManager={midiManager}></BarLights>
         </div>
       </div>
-
+      <hr />
       <div className="row">
         <div className="col">
           <Slider
@@ -68,6 +78,7 @@ function MidiController({ midiManager }: Props) {
           </Slider>
         </div>
       </div>
+      <hr />=
       <div className="row">
         <div className="col">
           <PainoKeyboard

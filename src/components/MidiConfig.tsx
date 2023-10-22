@@ -3,6 +3,7 @@ import MidiManager from "../Midi/MidiManager";
 import CheckboxGroup, { CheckboxItemData } from "./CheckboxGroup";
 import Button from "./Button";
 import { MIDIPORTNUMBERS } from "../Midi/MusicConstants";
+import MidiChannelSelector from "./MidiChannelSelector";
 
 interface Props {
   midiManager: MidiManager;
@@ -88,12 +89,8 @@ function MidiConfig({ midiManager, onClose }: Props) {
     saveSettingsConfig();
   };
 
-  const handleFXPortSelection = (_text: string, id: string, state: boolean) => {
-    if (state) {
-      midiManager.addFXChannel(parseInt(id, 10));
-    } else {
-      midiManager.removeFXChannel(parseInt(id, 10));
-    }
+  const handleFXPortSelection = (selectedChannels: number[]): void => {
+    midiManager.fxChannels = selectedChannels;
     saveSettingsConfig();
   };
 
@@ -137,11 +134,11 @@ function MidiConfig({ midiManager, onClose }: Props) {
       <h4>
         <i className="bi bi-soundwave"></i> FX Channels
       </h4>
-      <CheckboxGroup
-        style="default"
-        items={fxPortList}
-        onSelectItem={handleFXPortSelection}
-      ></CheckboxGroup>
+      <MidiChannelSelector
+        allowMultiple={true}
+        defaultValues={midiManager.fxChannels}
+        onSelectionChange={handleFXPortSelection}
+      ></MidiChannelSelector>
 
       <hr></hr>
       <Button
