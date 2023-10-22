@@ -51,7 +51,7 @@ class MidiManager {
   removeFXChannel(channel: number) {
     const idx = this.fxChannels.indexOf(channel);
     if (idx > -1) {
-      this.fxChannels.splice(channel, idx);
+      this.fxChannels.splice(idx, 1);
     }
   }
 

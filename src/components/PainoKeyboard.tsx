@@ -33,6 +33,7 @@ const Keyboard = ({ onDown, onUp }: KeyboardProps) => {
       onContextMenu={handleContextMenu}
       onSelect={handleContextMenu}
     >
+      <div className="keyboard-config">config</div>
       {keyList.map((n) => {
         return (
           <PainoKey

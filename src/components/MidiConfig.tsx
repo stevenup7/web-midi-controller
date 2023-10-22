@@ -24,7 +24,7 @@ function MidiConfig({ midiManager, onClose }: Props) {
     console.log(currConfig);
 
     for (const portId in currConfig.midiConnections) {
-      if (currConfig.midiConnections.hasOwnProperty(portId)) {
+      if (midiManager.getPortById(portId)) {
         const portConfig = currConfig.midiConnections[portId];
         if (portConfig) {
           midiManager.listenToPort(portId);
@@ -71,8 +71,9 @@ function MidiConfig({ midiManager, onClose }: Props) {
         allPorts[p].id
       ).connected;
     }
+    console.log(midiManager.fxChannels);
+
     currConfig.fxPortList = midiManager.fxChannels;
-    console.log(currConfig);
     localStorage.setItem("midi-manager-config", JSON.stringify(currConfig));
   };
 
