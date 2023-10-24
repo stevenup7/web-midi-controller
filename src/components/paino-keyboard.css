@@ -33,14 +33,16 @@ background-color: rgb(63, 51, 30);
     opacity: .25;
 }
 
-
-
 .keyboard-wrapper {
     z-index: 99;
-    position: relative;
+    
     height: 130px;
     display: flex;
     overflow-x: scroll;
     overflow-y: hidden;
 }
 
+.keyboard-config {
+    clear:both;
+    
+}

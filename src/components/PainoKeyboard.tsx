@@ -3,19 +3,21 @@ import { OCTAVE } from "../Midi/MusicConstants";
 
 import "./paino-keyboard.css";
 import PainoKey from "./PainoKeyboardKey";
+import MidiChannelSelector from "./MidiChannelSelector";
 
 interface KeyboardProps {
-  onDown: (data: string) => void;
-  onUp: (data: string) => void;
+  onDown: (channel: number, note: string) => void;
+  onUp: (channel: number, note: string) => void;
 }
 
 const Keyboard = ({ onDown, onUp }: KeyboardProps) => {
   let initVal: string[] = [];
   const [keyList, setKeyList] = useState(initVal);
+  const [midiChannel, setMidiChannel] = useState(0);
   // set up the keyboard
   useEffect(() => {
     let allKeys: string[] = [];
-    for (let oct = 3; oct < 8; oct++) {
+    for (let oct = 0; oct < 8; oct++) {
       for (let n = 0; n < OCTAVE.length; n++) {
         const currNote = OCTAVE[n];
         allKeys.push(currNote + oct);
@@ -27,29 +29,41 @@ const Keyboard = ({ onDown, onUp }: KeyboardProps) => {
   const handleContextMenu = (e: any) => {
     e.preventDefault();
   };
+  const handleChannelSelection = (selectedChannel: number[]) => {
+    setMidiChannel(selectedChannel[0]);
+  };
   return (
-    <div
-      className="keyboard-wrapper"
-      onContextMenu={handleContextMenu}
-      onSelect={handleContextMenu}
-    >
-      <div className="keyboard-config">config</div>
-      {keyList.map((n) => {
-        return (
-          <PainoKey
-            key={n}
-            note={n}
-            onUp={() => {
-              onUp(n);
-            }}
-            onDown={() => {
-              onDown(n);
-            }}
-          ></PainoKey>
-        );
-      })}
-      <hr />
-    </div>
+    <>
+      <div className="keyboard-config">
+        <MidiChannelSelector
+          allowMultiple={false}
+          defaultValues={-1}
+          onSelectionChange={handleChannelSelection}
+        ></MidiChannelSelector>
+      </div>
+
+      <div
+        className="keyboard-wrapper"
+        onContextMenu={handleContextMenu}
+        onSelect={handleContextMenu}
+      >
+        {keyList.map((n) => {
+          return (
+            <PainoKey
+              key={n}
+              note={n}
+              onUp={() => {
+                onUp(midiChannel, n);
+              }}
+              onDown={() => {
+                onDown(midiChannel, n);
+              }}
+            ></PainoKey>
+          );
+        })}
+        <hr />
+      </div>
+    </>
   );
 };
 

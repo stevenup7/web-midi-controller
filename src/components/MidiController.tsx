@@ -20,11 +20,11 @@ function MidiController({ midiManager }: Props) {
     });
   }, []);
 
-  const keyboardUp = (data: string) => {
-    midiManager.noteUp(4, data);
+  const keyboardUp = (channel: number, note: string) => {
+    midiManager.noteUp(channel, note);
   };
-  const keyboardDown = (data: string) => {
-    midiManager.noteDown(4, data);
+  const keyboardDown = (channel: number, note: string) => {
+    midiManager.noteDown(channel, note);
   };
   const delayChange = (val: number) => {
     // cc 85 for digitakt
@@ -78,9 +78,10 @@ function MidiController({ midiManager }: Props) {
           </Slider>
         </div>
       </div>
-      <hr />=
+      <hr />
       <div className="row">
         <div className="col">
+          <label>Midi Channel:</label>
           <PainoKeyboard
             onDown={keyboardDown}
             onUp={keyboardUp}
