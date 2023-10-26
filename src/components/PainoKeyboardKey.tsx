@@ -43,11 +43,13 @@ function PainoKey({ note, onUp, onDown }: PainoKeyProps) {
       onMouseUp={() => {
         keyUp(note);
       }}
-      onMouseOut={() => {
-        keyUp(note);
+      onMouseOut={(event: React.MouseEvent<HTMLDivElement>) => {
+        if (event.buttons === 1) {
+          keyUp(note);
+        }
       }}
       onMouseOver={(event: React.MouseEvent<HTMLDivElement>) => {
-        if (event.buttons == 1) {
+        if (event.buttons === 1) {
           keyDown(note);
         }
       }}

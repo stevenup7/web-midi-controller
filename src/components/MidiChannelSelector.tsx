@@ -2,7 +2,7 @@ import { MIDIPORTNUMBERS } from "../Midi/MusicConstants";
 
 interface Props {
   allowMultiple: boolean;
-  defaultValues: number[];
+  defaultValues: number[] | number;
   onSelectionChange: (selection: number[]) => void;
 }
 function MidiChannelSelector({
@@ -10,11 +10,22 @@ function MidiChannelSelector({
   defaultValues,
   onSelectionChange,
 }: Props) {
+  let defaultsAsStrings;
+  if (typeof defaultValues == "object") {
+    defaultsAsStrings = defaultValues.map((item: number) => {
+      return item.toString();
+    });
+  } else {
+    defaultsAsStrings = defaultValues.toString();
+  }
+  console.log(defaultsAsStrings, defaultValues);
+
   return (
     <select
       className="form-select"
       multiple={allowMultiple}
       aria-label="Select a MIDI Port"
+      defaultValue={defaultsAsStrings}
       onChange={(event) => {
         let results = [];
         for (let o = 0; o < event.target.options.length; o++) {
@@ -27,13 +38,14 @@ function MidiChannelSelector({
     >
       {MIDIPORTNUMBERS.map((i) => {
         const asInt = parseInt(i, 10) - 1;
-        let selected = false;
-        if (defaultValues.indexOf(asInt) !== -1) {
-          selected = true;
-        }
+        // let selected = false;
+        // if (defaultValues.indexOf(asInt) !== -1) {
+        //   selected = true;
+        // }
 
         return (
-          <option selected={selected} value={asInt}>
+          // <option selected={selected} key={asInt} value={asInt}>
+          <option key={asInt} value={asInt}>
             {i}
           </option>
         );

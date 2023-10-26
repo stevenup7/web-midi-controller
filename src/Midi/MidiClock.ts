@@ -1,5 +1,21 @@
 import MidiManager from "./MidiManager";
 
+/* MidiClock Object 
+
+  role: 
+
+  1/ act as a midi clock slave from a device sending a midi clock signal 
+  2/ act as a midi clock master and generate an accuratly timed midi clock for other devices to follow
+
+  secondary roles 
+
+  1/ track beats and bars 
+  2/ track 4 (x) bar loops 
+
+  probably make a seperate clock listener 
+
+*/
+
 class MidiClock {
   midiManager: MidiManager;
   clockTimes: number[];
@@ -18,11 +34,18 @@ class MidiClock {
     this.running = false;
     this.timerInterval = -1;
   }
+
+  // TODO: this is a very hacky solution
+  // needs accurate timing adn need to send out a clock signal
   startGenerating() {
     this.start();
     clearInterval(this.timerInterval);
     this.timerInterval = setInterval(() => {
       this.tick();
+      // stop if this.stop is called
+      if (this.running == false) {
+        clearInterval(this.timerInterval);
+      }
     }, 1000 / 24);
   }
   start() {
@@ -38,7 +61,7 @@ class MidiClock {
 
   tick() {
     if (!this.running) return;
-    // keep a running list of intervals since last clock time
+    // keep a running list of time intervals intervals since last clock time
     this.clockTimes.push(performance.now());
     if (this.clockTimes.length > 32) {
       this.clockTimes.shift(); // shift off the first element of the array so we only keep a certain length
