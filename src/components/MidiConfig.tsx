@@ -4,6 +4,8 @@ import CheckboxGroup, { CheckboxItemData } from "./CheckboxGroup";
 import Button from "./Button";
 import { MIDIPORTNUMBERS } from "../Midi/MusicConstants";
 import MidiChannelSelector from "./MidiChannelSelector";
+import MidiMachineEditor from "./MidiMachineEditor";
+import MidiMachine from "../Midi/MidiMachine";
 
 interface Props {
   midiManager: MidiManager;
@@ -141,7 +143,15 @@ function MidiConfig({ midiManager, onClose }: Props) {
         onSelectionChange={handleFXPortSelection}
       ></MidiChannelSelector>
 
-      <hr></hr>
+      <hr />
+      <h3>
+        <i className="bi bi-device-ssd"></i> Machines
+      </h3>
+      <MidiMachineEditor
+        midiManager={midiManager}
+        midiMachine={new MidiMachine("New Machine")}
+      ></MidiMachineEditor>
+      <hr />
       <Button
         onClick={() => {
           onClose();

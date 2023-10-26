@@ -1,11 +1,13 @@
 import { MIDIPORTNUMBERS } from "../Midi/MusicConstants";
 
 interface Props {
+  id?: string;
   allowMultiple: boolean;
   defaultValues: number[] | number;
   onSelectionChange: (selection: number[]) => void;
 }
 function MidiChannelSelector({
+  id = "midi-selector",
   allowMultiple,
   defaultValues,
   onSelectionChange,
@@ -22,6 +24,7 @@ function MidiChannelSelector({
 
   return (
     <select
+      id={id}
       className="form-select"
       multiple={allowMultiple}
       aria-label="Select a MIDI Port"
