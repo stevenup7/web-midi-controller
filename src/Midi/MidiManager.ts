@@ -3,12 +3,19 @@ import MidiPort, { MidiPortDirection } from "./MidiPort";
 import { CheckboxItemData } from "../components/CheckboxGroup";
 import MidiClock from "./MidiClock";
 import MidiMessage from "./MidiMessage";
+
 interface cbFn {
   (beatNumber: number): void;
 }
 
+/* Midi Manager Class 
+  - wraps all the midi ports 
+  - contains the clock (either clock generator or reciever) 
+  - this is the object that should be passed around to other high level midi objects 
+
+ */
 class MidiManager {
-  midi: MIDIAccess | undefined;
+  midiAccess: MIDIAccess | undefined;
   inPorts: { [key: string]: MidiPort };
   outPorts: { [key: string]: MidiPort };
   successCallback: () => void;
@@ -18,10 +25,10 @@ class MidiManager {
   fxChannels: number[];
   activeOutPorts: { [key: string]: MIDIOutput };
   constructor(successCallback: () => void) {
-    this.midi = undefined;
+    this.midiAccess = undefined; // the browser midiAccess object
     this.clock = new MidiClock(this);
-    this.inPorts = {};
-    this.outPorts = {};
+    this.inPorts = {}; // incoming midi ports
+    this.outPorts = {}; // outgoing midi ports
     this.activeOutPorts = {};
     this.onBeatCallBackFunctionList = [];
     this.successCallback = successCallback;
@@ -75,7 +82,7 @@ class MidiManager {
     if (this.isReset) {
       return;
     }
-    this.midi = midiAccess;
+    this.midiAccess = midiAccess;
     this.getInputsAndOutputs();
     this.successCallback();
   }
@@ -84,7 +91,7 @@ class MidiManager {
   }
 
   getInputsAndOutputs(): void {
-    if (!this.midi) throw new Error("No Midi Connection");
+    if (!this.midiAccess) throw new Error("No Midi Connection");
 
     const addPort = (
       details: any,
@@ -100,11 +107,11 @@ class MidiManager {
       );
     };
 
-    for (const entry of this.midi.inputs) {
+    for (const entry of this.midiAccess.inputs) {
       addPort(entry[1], "input", this.inPorts);
     }
 
-    for (const entry of this.midi.outputs) {
+    for (const entry of this.midiAccess.outputs) {
       addPort(entry[1], "output", this.outPorts);
     }
   }
@@ -132,13 +139,13 @@ class MidiManager {
   }
 
   closePort(portId: string) {
-    if (!this.midi) throw new Error("No Midi Connection");
+    if (!this.midiAccess) throw new Error("No Midi Connection");
     let port = this.getPortById(portId);
     let p: any;
     if (port.direction == "input") {
-      p = this.midi.inputs.get(portId);
+      p = this.midiAccess.inputs.get(portId);
     } else {
-      p = this.midi.outputs.get(portId);
+      p = this.midiAccess.outputs.get(portId);
     }
     port.connected = false;
     p.close();
@@ -184,14 +191,14 @@ class MidiManager {
   }
 
   listenToPort(portId: string) {
-    if (!this.midi) {
+    if (!this.midiAccess) {
       throw new Error("No Midi Connection");
       return;
     }
     let port = this.getPortById(portId);
 
     if (port.direction == "input") {
-      const input = this.midi.inputs.get(portId);
+      const input = this.midiAccess.inputs.get(portId);
 
       if (!input) throw new Error("Not A valid Input");
 
@@ -216,7 +223,7 @@ class MidiManager {
         }
       };
     } else {
-      const output = this.midi.outputs.get(portId);
+      const output = this.midiAccess.outputs.get(portId);
       if (!output) throw new Error("Not A valid Output");
       output.open(); // opens the port
       port.connected = true;
